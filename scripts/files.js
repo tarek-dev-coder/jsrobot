@@ -82,7 +82,10 @@ Files = {
 
 	save:
 	function(n, content){
-		if(n > files.length){
+		if(!this._storageAvailable()){
+			return false;
+		}
+		if(n > this._files.length){
 			return false;
 		}else if(n === 0){
 			localStorage.setItem(this._level_prepend + this._level,
@@ -92,6 +95,19 @@ Files = {
 				JSON.stringify(content));
 		}
 		return true;
+	},
+
+	_storageAvailable:
+	function(){
+		try {
+			var x = '__storage_test__';
+			localStorage.setItem(x, x);
+			localStorage.removeItem(x);
+			return true;
+		} catch (e) {
+			console.warn('localStorage unavailable; persistence disabled.');
+			return false;
+		}
 	},
 
 	find:

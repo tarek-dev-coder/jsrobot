@@ -117,6 +117,13 @@ var player = new Behavior(function(bodyPriv, bodyPubl){
 		var collide=undefined;
 		var context=undefined;`;
 
+	var disallowedCodeRegex = /\b(window|document|globalThis|self|parent|top|frames|eval|Function|XMLHttpRequest|fetch|WebSocket|localStorage|sessionStorage|IndexedDB)\b/;
+
+	function isUserCodeSafe(code){
+		if(!code || typeof code !== 'string') { return true; }
+		return !disallowedCodeRegex.test(code);
+	}
+
 	var logging = `
 		outputDiv = document.getElementById('output');
 		function console_output(a, hr){
@@ -186,34 +193,38 @@ var player = new Behavior(function(bodyPriv, bodyPubl){
 	`;
 
 	if(typeof newcommand !== 'undefined' && newcommand !== ""){
-		if (undefined === bodyPriv._console_scope) {
-			var ifrm = document.createElement("iframe");
-			ifrm.style.width = "0px";
-			ifrm.style.height = "0px";
-			document.body.appendChild(ifrm);
-			bodyPriv._console_scope = ifrm.contentWindow;
-			bodyPriv._console_scope.robot = bodyPubl;
-		}
-		bodyPubl.command(new Function(logging));
 		try{
 			console.log_in(newcommand);
-			var commandFn= new Function('console_scope', 
-			"var robot = this;\n" +
-			"console_scope.console = {}; console_scope.console.log = console.log_nohr; console_scope.console.error = console.error;\n" +
-			"console_scope.Game = Game;\n"+
-			"return console_scope.eval(`" +
-				hideGlobals +
-				newcommand +
-			"`);");
-
-			var a = bodyPubl.command(commandFn, bodyPriv._console_scope);
-			if(keyboardControl){
-				newcommand = ""; return;
+			if(!isUserCodeSafe(newcommand)){
+				throw new Error('Disallowed keywords or browser API used in command');
 			}
-			if(a.error === null){
-				console.log_out(a.output);
-			}else{
-				console.error(a.error.name + ': ' + a.error.message);
+
+			if (undefined === bodyPriv._console_scope) {
+				var ifrm = document.createElement("iframe");
+				ifrm.style.width = "0px";
+				ifrm.style.height = "0px";
+				document.body.appendChild(ifrm);
+				bodyPriv._console_scope = ifrm.contentWindow;
+				bodyPriv._console_scope.robot = bodyPubl;
+			}
+
+			var userCommandFn = new Function('robot', 'Game', 'console', '"use strict"; ' + hideGlobals + newcommand);
+			var commandResult = bodyPubl.command(function(console_scope){
+				return userCommandFn.call(this, bodyPubl, Game, {
+					log: console.log_nohr,
+					error: console.error
+				});
+			}, bodyPriv._console_scope);
+
+			if(keyboardControl){
+				newcommand = "";
+				return;
+			}
+
+			if(commandResult && commandResult.error === null){
+				console.log_out(commandResult.output);
+			}else if(commandResult && commandResult.error){
+				console.error(commandResult.error.name + ': ' + commandResult.error.message);
 			}
 		} catch (err) {
 			console.error(err.name + ": " + err.message);
@@ -222,17 +233,26 @@ var player = new Behavior(function(bodyPriv, bodyPubl){
 		newcommand = "";
 	}
 
-	var g;
 	if(typeof newcode !== 'undefined' && newcode && bodyPriv.k.t > 10){
-		g = Function(logging + hideGlobals + requires + Files.file(0).text + scriptTail);
-		try{
-			g().init(bodyPubl);
-		} catch (err) {
+		var userCode = (Files.file(0) && Files.file(0).text) ? Files.file(0).text : '';
+		if(!isUserCodeSafe(userCode)){
 			resetCode();
-			console.error(err.name + ': ' + err.message);
+			console.error('Disallowed keywords or browser API used in script.');
+			newcode = false;
+		} else {
+			try{
+				var compileFn = new Function('"use strict"; ' + hideGlobals + requires + userCode + scriptTail);
+				var moduleExports = compileFn();
+				if(moduleExports && typeof moduleExports.init === 'function'){
+					moduleExports.init(bodyPubl);
+				}
+				bodyPubl.playerCode = (moduleExports && typeof moduleExports.loop === 'function') ? moduleExports.loop : function(){};
+			} catch (err) {
+				resetCode();
+				console.error(err.name + ': ' + err.message);
+			}
+			newcode = false;
 		}
-		bodyPubl.playerCode = g().loop;
-		newcode = false;
 	}
 
 	if(typeof resetcode !== 'undefined' && resetcode){
