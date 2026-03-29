@@ -1,7 +1,7 @@
 
 var canvas = document.getElementById("canvasID");
-mousePosCanvas = {x: 0, y: 0};
-mousePosGame = {x: 0, y: 0};
+var mousePosCanvas = {x: 0, y: 0};
+var mousePosGame = {x: 0, y: 0};
 function getMousePos(canvas, evt) {
    var rect = canvas.getBoundingClientRect();
    return {
@@ -41,7 +41,7 @@ function startLevel(level, language){
   	//Player = Player;
   	//Robot = robot.Robot;
   	//RobotOne = robot.RobotOne;
-   currentLevel = levels[level - 1];
+   currentLevel = levelData[level - 1];
   	collide = Collision; // use as a static method
   	effects = new Effects();
   	engine = new Engine();
