@@ -529,12 +529,12 @@ command.onfocus = function(){
 	setKeyboardControl(false);
 };
 
-document.addEventListener('keydown', function(e){
+document.onkeydown = function myFunction() {
 	if(keyboardControl){
-		var keyCode = e.which || e.keyCode;
-		executeCommand("robot.setAction({keyCode: " + keyCode + "});");
+		key = event.keyCode || event.which;
+		executeCommand("robot.setAction({keyCode: " + key + "});");
 	}
-});
+};
 
 
 
