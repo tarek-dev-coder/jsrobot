@@ -1,0 +1,146 @@
+<html>
+
+    <head>
+		<title>JSRobot</title>
+
+
+  <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="codemirror/theme/dracula.css">
+  <script src="codemirror/lib/codemirror.js"></script>
+  <script src="codemirror/mode/javascript/javascript.js"></script>
+  <script src="codemirror/addon/selection/active-line.js"></script>
+  <script src="codemirror/addon/edit/matchbrackets.js"></script>
+  <script src="codemirror/addon/edit/closebrackets.js"></script>
+  <script src="codemirror/addon/display/autorefresh.js"></script>
+
+<script data-main="scripts/main" src="scripts/require.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,700|Roboto:300,400,700" rel="stylesheet">
+
+<link rel="stylesheet" type="text/css" href="style.css">
+
+<link rel="apple-touch-icon" sizes="57x57" href="icon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="icon/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="icon/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icon/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="icon/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icon/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="icon/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="icon/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="icon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
+<link rel="manifest" href="icon/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="icon/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+ <meta name="description" content="Learn JavaScript by playing a platform game: Control a robot to collect coins, avoid obstacles and reach the flag at the end of the level.">
+ <meta name="keywords" content="JavaScript, Robot, JSRobot, Learn JavaScript, Learn JS, JavaScript for beginners">
+ <meta name="author" content="Reaal Khalil">
+
+    </head>
+
+	<body style="background:black;" class="noselect">
+
+    <div id="menu">
+      <img class="robotbig" src="images/robotbig.png">
+      <div id="speechbubble">beep boop</div>
+      <a class="menubutton prevlevel-menubutton" id="prevlevel">&larr;</a>
+      <a class="menubutton level-menubutton" id="level">Level 1</a>
+      <a class="menubutton start-menubutton" id="start">Start</a>
+		<a href="http://twitter.com/reaalkhalil" target="_blank" class="twitter">@reaalkhalil</a>
+
+    </div>
+
+
+    <div id="play">
+      <a class="menubutton repeatlevel-menubutton" id="repeatlevel">Repeat Level Without Practice Mode</a>
+      <a class="menubutton nextlevel-menubutton" id="nextlevel">Next Level&nbsp; &rarr;</a>
+      <a class="menubutton skiplevel-menubutton" id="skiplevel">Skip this Level&nbsp; &rarr;</a>
+
+		<canvas id="canvasID" width="400" height="500"></canvas>
+
+    <ul id="topbar">
+      <li><a id="backtomenu"><img src="images/topbar_menu.png" class="topbar-button-img">Menu</a>
+      </li><li><a id="restartlevel"><img src="images/topbar_reset.png" class="topbar-button-img">Reset</a>
+      </li><li><a id="submitCode"><img src="images/topbar_run.png" class="topbar-button-img">Run</a>
+      </li><li><a id="topbar-pausebutton"><img src="images/topbar_pause.png" class="topbar-button-img">Pause</a>
+      </li><li><a id="topbar-arrowkeys">&nbsp;<img src="images/topbar_arrowkeys.png" class="topbar-button-img">&nbsp;</a>
+
+      </li><li id="topbar-practicemode">Practice Mode
+      </li><li id="hud">
+			<span id="hud-mouse-coords">{x: 0, y: 0}</span> <img src="images/hud_mouse.png">
+        <span id="hud-coins">0</span> <img src="images/hud_coin.png">
+        <span id="hud-health">100</span> <img src="images/hud_heart.png">
+        <span id="hud-battery">100</span> <img src="images/hud_battery.png">
+      </li>
+
+
+    </ul>
+
+		<div id="codearea" style="height: 300px;">
+				<ul id="buttonbar" class="noselect">
+						<li><a id="instructionsBtn" class="selected">Instructions</a>
+						</li><li><a id="codeBtn">Script</a>
+						</li><li><a id="commandBtn">Console</a>
+						</li><li><a id="propertiesBtn">Properties</a></li><li id="minmax">
+						<a>_</a></li>
+				</ul>
+	<div id="codeDiv" style="display: none;">
+		<div id="files" class="closed">
+		<ul id="files-list">
+			<li><a class="selected"><input value="level1.js" spellcheck="false"></a></li>
+			<li><a><input value="events.js" spellcheck="false" autocomplete="false"></a></li>
+			<li><a><input value="jumps.js" spellcheck="false"></a></li>
+			<li><a><input value="utils.js" spellcheck="false"></a></li>
+		</ul>
+			<a class="close closed" id="files-close"><img src="images/files-close.png"></a>
+			<a class="add-file" id="files-new"><img src="images/files-add.png">New File</a>
+			<a class="delete-file" id="files-delete"><img src="images/files-delete.png">Delete</a>
+		</div>
+			<textarea id="code">
+function init(robot){
+  // your code here
+}
+
+function loop(robot){
+  // your code here
+}
+</textarea>
+	</div>
+		<div id="commandDiv">
+      <div id="output" class="allowselect"></div>
+      <input id="command" value="">
+    </div>
+		<div id="instructionsDiv" class="allowselect" style="display: block"></div>
+		<div id="propertiesDiv"></div>
+	</div>
+
+
+  </div>
+
+
+	<script src="scripts/files.js"></script>
+	<script src="scripts/ui.js"></script>
+  <script>
+
+  var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+    lineNumbers: true,
+    styleActiveLine: true,
+    matchBrackets: true,
+	 indentUnit: 4,
+	 indentWithTabs: true,
+	 showCursorWhenSelecting: true,
+    autoCloseBrackets: true,
+    autoRefresh: true,
+    autofocus: true,
+    lineWrapping: true
+  });
+  editor.setOption("theme", "dracula");
+
+  </script>
+    </body>
+
+</html>
