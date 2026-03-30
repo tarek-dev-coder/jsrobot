@@ -23,9 +23,20 @@ var maxLevels = 1;
 var levels;
 var allInstructions;
 
-requirejs.config({
-    baseUrl: 'scripts',
-});
+function whenRequireJsReady(callback){
+	if(typeof requirejs === 'function'){
+		callback();
+		return;
+	}
+
+	window.addEventListener('load', function(){
+		if(typeof requirejs === 'function'){
+			callback();
+		}else{
+			console.error("Error: requirejs failed to load. Please refresh the page.");
+		}
+	}, {once: true});
+}
 
 function parseURL(locationHash){
 	var loc = locationHash + '';
@@ -55,8 +66,13 @@ function parseURL(locationHash){
 	return {level: level, language: language};
 }
 
-requirejs(['mozart', '../data/levels', '../data/instructions'],
-  function (mozart, levelData, instructionData) {
+whenRequireJsReady(function(){
+	requirejs.config({
+	    baseUrl: 'scripts',
+	});
+
+	requirejs(['mozart', '../data/levels', '../data/instructions'],
+	  function (mozart, levelData, instructionData) {
 		levels = (new levelData()).levels;
 		allInstructions = new instructionData();
 
@@ -107,9 +123,8 @@ requirejs(['mozart', '../data/levels', '../data/instructions'],
 			}
 		}
 	}
+	});
 });
-
-document.body.style.visibility = 'visible';
 
 prevlevelButton.onclick = function(){
 	level = Math.max(1, level - 1);
@@ -197,6 +212,7 @@ var code = document.getElementById("code");
 var codeDiv = document.getElementById("codeDiv");
 var command = document.getElementById("command");
 var commandDiv = document.getElementById("commandDiv");
+var commandBtn = document.getElementById("commandBtn") || command;
 var propertiesDiv = document.getElementById("propertiesDiv");
 var instructionsDiv = document.getElementById("instructionsDiv");
 var codearea = document.getElementById("codearea");
@@ -381,6 +397,9 @@ topBarpracticeMode.style.display = 'none';
 
 function setConsoleError(a){
 	pauseScript();
+	if(!commandBtn){
+		return;
+	}
 	if(a && commandDiv.style.display == "none"){
 		commandBtn.classList.add('error');
 	}else{
@@ -514,4 +533,3 @@ filesNameChange = function(n){
 	filesPopulate();
 	filesClick(Files.find(newName));
 };
-
