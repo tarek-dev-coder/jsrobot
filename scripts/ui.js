@@ -109,8 +109,6 @@ requirejs(['mozart', '../data/levels', '../data/instructions'],
 	}
 });
 
-document.body.style.visibility = 'visible';
-
 prevlevelButton.onclick = function(){
 	level = Math.max(1, level - 1);
 	levelButton.innerHTML = "Level " + level;
@@ -514,4 +512,3 @@ filesNameChange = function(n){
 	filesPopulate();
 	filesClick(Files.find(newName));
 };
-
