@@ -23,29 +23,15 @@ var maxLevels = 1;
 var levels;
 var allInstructions;
 
-function getEditorReadyPromise(){
-	if(window.editorReady && typeof window.editorReady.then === 'function'){
-		return window.editorReady;
-	}
-
-	return Promise.resolve(window.editor);
-}
-
-function whenAppReady(callback){
-	function runCallbackWhenReady(){
-		getEditorReadyPromise().then(function(){
-			callback();
-		});
-	}
-
+function whenRequireJsReady(callback){
 	if(typeof requirejs === 'function'){
-		runCallbackWhenReady();
+		callback();
 		return;
 	}
 
 	window.addEventListener('load', function(){
 		if(typeof requirejs === 'function'){
-			runCallbackWhenReady();
+			callback();
 		}else{
 			console.error("Error: requirejs failed to load. Please refresh the page.");
 		}
@@ -80,7 +66,7 @@ function parseURL(locationHash){
 	return {level: level, language: language};
 }
 
-whenAppReady(function(){
+whenRequireJsReady(function(){
 	requirejs.config({
 	    baseUrl: 'scripts',
 	});
