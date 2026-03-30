@@ -195,6 +195,7 @@ var code = document.getElementById("code");
 var codeDiv = document.getElementById("codeDiv");
 var command = document.getElementById("command");
 var commandDiv = document.getElementById("commandDiv");
+var commandBtn = document.getElementById("commandBtn") || command;
 var propertiesDiv = document.getElementById("propertiesDiv");
 var instructionsDiv = document.getElementById("instructionsDiv");
 var codearea = document.getElementById("codearea");
@@ -379,6 +380,9 @@ topBarpracticeMode.style.display = 'none';
 
 function setConsoleError(a){
 	pauseScript();
+	if(!commandBtn){
+		return;
+	}
 	if(a && commandDiv.style.display == "none"){
 		commandBtn.classList.add('error');
 	}else{
