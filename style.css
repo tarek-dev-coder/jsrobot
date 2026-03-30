@@ -37,6 +37,7 @@ body {
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
   overflow: hidden;
+  visibility: visible;
 }
 .noselect {
   -webkit-touch-callout: none;

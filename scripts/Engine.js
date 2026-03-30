@@ -6,7 +6,23 @@ var Engine = mozart(function(prototype, _, _protected, __, __private) {
 		__(this).timestep = 0;
 		__(this).started = false;
 		__(this).properties = {x:0, y:0, width: 900, height: 500};
+		__(this).lastCanvasWidth = null;
+		__(this).lastCanvasHeight = null;
+		__(this).lastCodeAreaHeight = null;
+		__(this).resizeViewport();
+		var that = this;
+		window.addEventListener('resize', function(){
+			that.resizeViewport();
+		});
 		__(this).build();
+	};
+
+	__private.resizeViewport = function(){
+		var p = __(this).properties;
+		var codeAreaHeight = codearea ? codearea.clientHeight : 0;
+		__(this).lastCodeAreaHeight = codeAreaHeight;
+		p.width = Math.max(450, window.innerWidth - 20);
+		p.height = Math.max(300, window.innerHeight - codeAreaHeight);
 	};
 
 	__private.ticker = function(){
@@ -138,10 +154,17 @@ var Engine = mozart(function(prototype, _, _protected, __, __private) {
 
 	__private.render = function(){
 		var p = __(this).properties;
-		p.width = Math.max(450, window.innerWidth - 20);
-		p.height = Math.max(300, window.innerHeight - codearea.clientHeight);
-		canvas.width = p.width;
-		canvas.height = p.height;
+		if(codearea && codearea.clientHeight !== __(this).lastCodeAreaHeight){
+			__(this).resizeViewport();
+		}
+		if(__(this).lastCanvasWidth !== p.width){
+			canvas.width = p.width;
+			__(this).lastCanvasWidth = p.width;
+		}
+		if(__(this).lastCanvasHeight !== p.height){
+			canvas.height = p.height;
+			__(this).lastCanvasHeight = p.height;
+		}
 		context.mozImageSmoothingEnabled = false;
 		context.webkitImageSmoothingEnabled = false;
 		context.msImageSmoothingEnabled = false;
