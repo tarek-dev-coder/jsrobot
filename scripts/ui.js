@@ -23,9 +23,20 @@ var maxLevels = 1;
 var levels;
 var allInstructions;
 
-requirejs.config({
-    baseUrl: 'scripts',
-});
+function whenRequireJsReady(callback){
+	if(typeof requirejs === 'function'){
+		callback();
+		return;
+	}
+
+	window.addEventListener('load', function(){
+		if(typeof requirejs === 'function'){
+			callback();
+		}else{
+			console.error("Error: requirejs failed to load. Please refresh the page.");
+		}
+	}, {once: true});
+}
 
 function parseURL(locationHash){
 	var loc = locationHash + '';
@@ -55,8 +66,13 @@ function parseURL(locationHash){
 	return {level: level, language: language};
 }
 
-requirejs(['mozart', '../data/levels', '../data/instructions'],
-  function (mozart, levelData, instructionData) {
+whenRequireJsReady(function(){
+	requirejs.config({
+	    baseUrl: 'scripts',
+	});
+
+	requirejs(['mozart', '../data/levels', '../data/instructions'],
+	  function (mozart, levelData, instructionData) {
 		levels = (new levelData()).levels;
 		allInstructions = new instructionData();
 
@@ -107,6 +123,7 @@ requirejs(['mozart', '../data/levels', '../data/instructions'],
 			}
 		}
 	}
+	});
 });
 
 prevlevelButton.onclick = function(){
