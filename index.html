@@ -4,25 +4,11 @@
 <head>
   <title>JSRobot</title>
 
-  <style>
-    body {
-      visibility: hidden;
-    }
-  </style>
-
   <link rel="stylesheet" href="codemirror/lib/codemirror.css">
   <link rel="stylesheet" href="codemirror/theme/dracula.css">
-  <script src="codemirror/lib/codemirror.js"></script>
-  <script src="codemirror/mode/javascript/javascript.js"></script>
-  <script src="codemirror/addon/selection/active-line.js"></script>
-  <script src="codemirror/addon/edit/matchbrackets.js"></script>
-  <script src="codemirror/addon/edit/closebrackets.js"></script>
-  <script src="codemirror/addon/display/autorefresh.js"></script>
-
-  <script data-main="scripts/main" src="scripts/require.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,700|Roboto:300,400,700" rel="stylesheet">
-
   <link rel="stylesheet" type="text/css" href="style.css">
+
 
   <link rel="apple-touch-icon" sizes="57x57" href="icon/apple-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="icon/apple-icon-60x60.png">
@@ -129,6 +115,19 @@ function loop(robot){
 
 
     <script src="scripts/files.js"></script>
+
+    <script>
+      // Some browser extensions/dev tools inject AMD globals early.
+      // Temporarily disable AMD detection so CodeMirror always attaches to window.
+      window.__jsrobotSavedDefine = window.define;
+      window.define = undefined;
+    </script>
+    <script src="codemirror/lib/codemirror.js"></script>
+    <script src="codemirror/mode/javascript/javascript.js"></script>
+    <script src="codemirror/addon/selection/active-line.js"></script>
+    <script src="codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="codemirror/addon/edit/closebrackets.js"></script>
+    <script src="codemirror/addon/display/autorefresh.js"></script>
     <script>
       // Initialize CodeMirror BEFORE ui.js loads so it's ready for hash URL processing
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -144,8 +143,12 @@ function loop(robot){
         lineWrapping: true
       });
       editor.setOption("theme", "dracula");
+      // Restore AMD global for RequireJS/bootstrap scripts.
+      window.define = window.__jsrobotSavedDefine;
+      delete window.__jsrobotSavedDefine;
     </script>
     <script src="scripts/ui.js"></script>
+    <script data-main="scripts/main" src="scripts/require.js"></script>
 </body>
 
 </html>
