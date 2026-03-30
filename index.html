@@ -13,9 +13,7 @@
   <script src="codemirror/addon/edit/closebrackets.js"></script>
   <script src="codemirror/addon/display/autorefresh.js"></script>
 
-  <script data-main="scripts/main" src="scripts/require.js"></script>
-  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,700|Roboto:300,400,700" rel="stylesheet">
-
+  <script defer data-main="scripts/main" src="scripts/require.js"></script>
   <link rel="stylesheet" type="text/css" href="style.css">
 
   <link rel="apple-touch-icon" sizes="57x57" href="icon/apple-icon-57x57.png">
@@ -43,7 +41,7 @@
 
 </head>
 
-<body style="background:black;" class="noselect">
+<body style="background:black;" class="app-loading noselect">
 
   <div id="menu">
     <img class="robotbig" src="images/robotbig.png">
@@ -124,20 +122,49 @@ function loop(robot){
 
     <script src="scripts/files.js"></script>
     <script>
-      // Initialize CodeMirror BEFORE ui.js loads so it's ready for hash URL processing
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        styleActiveLine: true,
-        matchBrackets: true,
-        indentUnit: 4,
-        indentWithTabs: true,
-        showCursorWhenSelecting: true,
-        autoCloseBrackets: true,
-        autoRefresh: false,
-        autofocus: true,
-        lineWrapping: true
+      var editor = null;
+      window.editorReady = new Promise(function(resolve) {
+        function showApp() {
+          document.body.classList.remove("app-loading");
+        }
+
+        function initEditor() {
+          if (editor) {
+            resolve(editor);
+            return;
+          }
+
+          window.requestAnimationFrame(function() {
+            editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+              lineNumbers: true,
+              styleActiveLine: true,
+              matchBrackets: true,
+              indentUnit: 4,
+              indentWithTabs: true,
+              showCursorWhenSelecting: true,
+              autoCloseBrackets: true,
+              autoRefresh: false,
+              autofocus: true,
+              lineWrapping: true
+            });
+            editor.setOption("theme", "dracula");
+            showApp();
+            resolve(editor);
+          });
+        }
+
+        if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === "function") {
+          document.fonts.ready.then(showApp, showApp);
+        } else {
+          window.addEventListener("load", showApp, { once: true });
+        }
+
+        if (document.readyState === "complete") {
+          initEditor();
+        } else {
+          window.addEventListener("load", initEditor, { once: true });
+        }
       });
-      editor.setOption("theme", "dracula");
     </script>
     <script src="scripts/ui.js"></script>
 </body>
