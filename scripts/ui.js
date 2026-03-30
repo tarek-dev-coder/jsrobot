@@ -109,7 +109,15 @@ requirejs(['mozart', '../data/levels', '../data/instructions'],
 	}
 });
 
-document.body.style.visibility = 'visible';
+function revealPageWhenReady(){
+	document.body.style.visibility = 'visible';
+}
+
+if(document.readyState === 'complete'){
+	revealPageWhenReady();
+}else{
+	window.addEventListener('load', revealPageWhenReady, {once: true});
+}
 
 prevlevelButton.onclick = function(){
 	level = Math.max(1, level - 1);
@@ -514,4 +522,3 @@ filesNameChange = function(n){
 	filesPopulate();
 	filesClick(Files.find(newName));
 };
-
