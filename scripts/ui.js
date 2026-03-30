@@ -109,16 +109,6 @@ requirejs(['mozart', '../data/levels', '../data/instructions'],
 	}
 });
 
-function revealPageWhenReady(){
-	document.body.style.visibility = 'visible';
-}
-
-if(document.readyState === 'complete'){
-	revealPageWhenReady();
-}else{
-	window.addEventListener('load', revealPageWhenReady, {once: true});
-}
-
 prevlevelButton.onclick = function(){
 	level = Math.max(1, level - 1);
 	levelButton.innerHTML = "Level " + level;
