@@ -1,4 +1,4 @@
-Files = {
+var Files = {
 
 	_files: [],
 	_level: 1,
@@ -7,7 +7,11 @@ Files = {
 
 	validFileName:
 	function(name){
-		
+		if(typeof name !== 'string'){
+			return false;
+		}
+		var trimmed = name.trim();
+		return trimmed !== '' && trimmed.indexOf('/') === -1;
 	},
 
 	setLevel:
@@ -18,13 +22,13 @@ Files = {
 	files:
 	function(){
 		this._retrieve();
-		levelFile = 'level-' + this._level;
+		var levelFile = 'level-' + this._level;
 		return [levelFile].concat(this._files);
 	},
 
 	add:
 	function(name){
-		if(name === ''){
+		if(!this.validFileName(name)){
 			return false;
 		}
 		if(this.find(name) != -1){
@@ -37,7 +41,7 @@ Files = {
 
 	rename:
 	function(n, name){
-		if(n === 0 || name === ''){
+		if(n === 0 || !this.validFileName(name)){
 			return false;
 		}
 		if(this.find(name) != -1){
@@ -54,7 +58,7 @@ Files = {
 	function(n){
 		if(n <= this._files.length && n > 0){
 			localStorage.removeItem(this._file_prepend + this._files[n-1]);
-			//this._files.splice(n - 1, 1);
+			this._files.splice(n - 1, 1);
 			return true;
 		}
 		return false;
@@ -62,6 +66,7 @@ Files = {
 
 	file:
 	function(n){
+		var content;
 		if(n === 0){
 			content = localStorage.getItem(this._level_prepend + this._level);
 			if(!content){
@@ -82,7 +87,7 @@ Files = {
 
 	save:
 	function(n, content){
-		if(n > files.length){
+		if(n > this._files.length){
 			return false;
 		}else if(n === 0){
 			localStorage.setItem(this._level_prepend + this._level,
