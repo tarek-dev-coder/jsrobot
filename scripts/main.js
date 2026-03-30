@@ -41,7 +41,7 @@ function startLevel(level, language){
   	//Player = Player;
   	//Robot = robot.Robot;
   	//RobotOne = robot.RobotOne;
-   currentLevel = levelData[level - 1];
+   currentLevel = levels[level - 1];
   	collide = Collision; // use as a static method
   	effects = new Effects();
   	engine = new Engine();

@@ -692,7 +692,7 @@ function loop(robot) {
 <h1>Level 4</h1>
 
 <h3>I haven't written the instructions for this level yet :(</h3>
-<h3>If you would like to help out tweet me <a href="https://twitter.com/reaalkhalil/">@reaalkhalil</a></h3>
+<h3>If you would like to help out, check out my GitHub <a href="https://github.com/tarek-dev-coder">@tarek-dev-coder</a></h3>
 
 <!--
 	keyboard control

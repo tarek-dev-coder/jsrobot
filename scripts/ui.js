@@ -32,16 +32,15 @@ function parseURL(locationHash){
 	var level = null;
 	var language = null;
 
-	if(location.hash.length > 0){
-		var indexLevel = location.hash.indexOf('level=');
-		var indexLang = location.hash.indexOf('language=');
+	if(loc.length > 0){
+		var indexLevel = loc.indexOf('level=');
+		var indexLang = loc.indexOf('language=');
 
 		if(indexLevel != -1){
 			var levelString = loc.slice(indexLevel + 6);
 			var indexAmp = levelString.indexOf('&');
 			if(indexAmp != -1){
 				levelString = levelString.slice(0, indexAmp);
-				loc = loc.slice(indexLevel + indexAmp + 7);
 			}
 			if(!isNaN(levelString)){
 				level = Number(levelString);
@@ -49,8 +48,7 @@ function parseURL(locationHash){
 		}
 
 		if(indexLang != -1){
-			loc = loc.slice(9);
-			language = loc;
+			language = loc.slice(indexLang + 9);
 		}
 	}
 
@@ -63,19 +61,23 @@ requirejs(['mozart', '../data/levels', '../data/instructions'],
 		allInstructions = new instructionData();
 
 		maxLevels = levels.length;
-		menu.style.display = "block";
+		menu.classList.remove('hidden');
 
 		if(location.hash.length > 0){
-			if(!isNaN(location.hash.slice(7,8))){
+			if(location.hash.indexOf('level=') !== -1){
 				var parse = parseURL(location.hash);
 				level = parse.level;
 				language = parse.language || 'en';
+
+				if(level !== null){
+					levelButton.innerHTML = "Level " + level;
+				}
 
 				if (!(language in allInstructions)) {
 					language = 'en';
 				}
 
-				if(level <= maxLevels){
+				if(level !== null && level <= maxLevels && level > 0){
 					Files.setLevel(level);
 
 				var startingCode = 'function init(robot) {\n' + 
@@ -100,14 +102,14 @@ requirejs(['mozart', '../data/levels', '../data/instructions'],
 				}
 
 				startGame(level, language);
-				if(content !== null){
-					openCodeDiv();
-				}
+				menu.classList.add('hidden');
 				menu.style.display = "none";
 			}
 		}
 	}
 });
+
+document.body.style.visibility = 'visible';
 
 prevlevelButton.onclick = function(){
 	level = Math.max(1, level - 1);
@@ -130,13 +132,22 @@ function showLevelSolution(){
 }
 
 function startGame(level, language){
+	menu.classList.add('hidden');
 	menu.style.display = "none";
 	play.style.display = "inherit";
-	openInstructionsDiv();
 	startLevel(level, language);
 	var instructions = allInstructions[language];
 	Files.setLevel(level);
 	filesPopulate();
+	var fileContent = Files.file(0);
+	if(fileContent && fileContent.text){
+		editor.setValue(fileContent.text);
+		if(fileContent.history){
+			editor.setHistory(fileContent.history);
+		}
+	} else {
+		editor.setValue('function init(robot){\n\t// your code here\n}\n\nfunction loop(robot){\n\t// your code here\n}\n');
+	}
 	instructionsDiv.innerHTML = instructions[level-1];
 
 	var codeBoxes = instructionsDiv.getElementsByClassName('code');
@@ -186,15 +197,8 @@ var code = document.getElementById("code");
 var codeDiv = document.getElementById("codeDiv");
 var command = document.getElementById("command");
 var commandDiv = document.getElementById("commandDiv");
-var buttonbar = document.getElementById("buttonbar");
-var commandBtn = document.getElementById("commandBtn");
-var codeBtn = document.getElementById("codeBtn");
-var propertiesBtn = document.getElementById("propertiesBtn");
 var propertiesDiv = document.getElementById("propertiesDiv");
-var instructionsBtn = document.getElementById("instructionsBtn");
 var instructionsDiv = document.getElementById("instructionsDiv");
-var minmaxBtn = document.getElementById("minmax");
-var lineheight = document.getElementById("lineheight");
 var codearea = document.getElementById("codearea");
 var topBarpracticeMode = document.getElementById("topbar-practicemode");
 var pauseButton = document.getElementById("topbar-pausebutton");
@@ -339,146 +343,9 @@ code.onkeydown = function(e) {
         e.preventDefault();
     }
 };
-function openInstructionsDiv(){
-	propertiesDiv.style.display = "none";
-	commandDiv.style.display = "none";
-	codeDiv.style.display = "none";
-	instructionsDiv.style.display = "block";
-	instructionsBtn.className = "selected";
-	commandBtn.className = "";
-	codeBtn.className = "";
-	propertiesBtn.className = "";
-	minmaxBtn.innerHTML = "<a>_</a>";
-	buttonbar.classList.remove("minimized");
-}
-
-function openCommandDiv(){
-	commandDiv.style.display = "block";
-	propertiesDiv.style.display = "none";
-	codeDiv.style.display = "none";
-	instructionsDiv.style.display = "none";
-	instructionsBtn.className = "";
-	codeBtn.className = "";
-	propertiesBtn.className = "";
-	commandBtn.className = "selected";
-	minmaxBtn.innerHTML = "<a>_</a>";
-	buttonbar.classList.remove("minimized");
-	if(!keyboardControl){
-		command.focus();
-	}
-}
-function openCodeDiv(){
-	codeDiv.style.display = "block";
-	propertiesDiv.style.display = "none";
-	commandDiv.style.display = "none";
-	instructionsDiv.style.display = "none";
-	instructionsBtn.className = "";
-	commandBtn.className = "";
-	propertiesBtn.className = "";
-	codeBtn.className = "selected";
-	editor.focus();
-	editor.setCursor(editor.lineCount(), 0);
-	minmaxBtn.innerHTML = "<a>_</a>";
-	buttonbar.classList.remove("minimized");
-}
-function openPropertiesDiv(){
-	propertiesDiv.style.display = "block";
-	commandDiv.style.display = "none";
-	codeDiv.style.display = "none";
-	instructionsDiv.style.display = "none";
-	instructionsBtn.className = "";
-	commandBtn.className = "";
-	codeBtn.className = "";
-	propertiesBtn.className = "selected";
-	minmaxBtn.innerHTML = "<a>_</a>";
-	buttonbar.classList.remove("minimized");
-}
-var oldCodeareaHeight = 0;
-function minimize(){
-	buttonbar.classList.add("minimized");
-	codeDiv.style.display = "none";
-	propertiesDiv.style.display = "none";
-	instructionsDiv.style.display = "none";
-	commandDiv.style.display = "none";
-	minmaxBtn.innerHTML = "<a>&#11027;</a>";
-  oldCodeareaHeight = codearea.style.height;
-  codearea.style.height = 35;
-}
-function maximize(){
-   codearea.style.height = oldCodeareaHeight;
-	buttonbar.classList.remove("minimized");
-	if(commandBtn.className == "selected"){
-		openCommandDiv();
-	}else if(codeBtn.className == "selected"){
-		openCodeDiv();
-	}else if(instructionsBtn.className == "selected"){
-		openInstructionsDiv();
-	}else{
-		openPropertiesDiv();
-	}
-}
-
-instructionsBtn.onclick = function(){
-	openInstructionsDiv();
-	if(codearea.style.height == '35px'){
-		maximize();
-	}
-};
-propertiesBtn.onclick = function(){
-	openPropertiesDiv();
-	if(codearea.style.height == '35px'){
-		maximize();
-	}
-};
-commandBtn.onclick = function(){
-	openCommandDiv();
-	if(codearea.style.height == '35px'){
-		maximize();
-	}
-};
-codeBtn.onclick = function(){
-	openCodeDiv();
-	if(codearea.style.height == '35px'){
-		maximize();
-	}
-};
-minmaxBtn.onclick = function(){
-	if(codeDiv.style.display == "none" &&
-			commandDiv.style.display == "none" &&
-			propertiesDiv.style.display == "none" &&
-			instructionsDiv.style.display == "none")
-	{
-		maximize();
-	}else{
-		minimize();
-	}
-};
 
 var dragy = 0;
 var dragging = false;
-buttonbar.onmousedown = function(e){
-  if(codearea.style.height != '35px'){
-  	dragy = e.clientY;
-  	dragging = true;
-  }
-};
-
-onmouseup = function(e){
-	dragging = false;
-	buttonbar.style.cursor = "default";
-};
-
-onmousemove = function(e){
-	if(dragging){
-		buttonbar.style.cursor = "ns-resize";
-		var height = Number(codearea.style.height.replace("px",""));
-		var newheight = height + dragy - e.clientY;
-		if(newheight < 104){newheight = 104;}
-		codearea.style.height = Math.min(newheight, window.innerHeight || Infinity);
-		dragy = e.clientY;
-  }
-};
-
 
 onkeydown = function(e) {
     if(e.metaKey || e.ctrlKey) {
